@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace는 패키지 명 + 인터페이스명과 맞춰줘야한다. -->
+<mapper namespace="com.task.ou.mapper.BoardMapper">
+
+	<select id="getBoardList" resultType="com.task.ou.vo.BoardVO">
+   <![CDATA[
+		SELECT * FROM ou_board ORDER BY bgroup DESC, bstep ASC
+   ]]>
+	</select>
+	
+	<select id="getBoardListWithPaging" resultType="com.task.ou.vo.BoardVO">
+   <![CDATA[
+        SELECT * FROM (
+        	SELECT ROWNUM AS RNUM, A.* FROM (
+            	SELECT * FROM ou_board ORDER BY bgroup DESC, bstep ASC   
+             ) A WHERE ROWNUM <= #{pageNum} * #{amount}
+         ) WHERE RNUM > (#{pageNum}-1) * #{amount}  
+   ]]>
+	</select>	
+	
+	<select id="getTotalCount" resultType="int">
+   <![CDATA[
+        SELECT COUNT(*) FROM ou_board
+   ]]>
+	</select>		
+	
+	<select id="read" resultType="com.task.ou.vo.BoardVO">
+   <![CDATA[
+		SELECT * FROM ou_board WHERE bid = #{bid}
+   ]]>
+	</select>	
+	
+	<select id="insert">
+   <![CDATA[
+		INSERT INTO ou_board(bid, bname, btitle, bcontent, bhit, bgroup, bstep, bindent)
+		VALUES (ou_board_SEQ.NEXTVAL, #{bname}, #{btitle}, #{bcontent}, 0, ou_board_SEQ.CURRVAL, 0, 0)
+   ]]>
+	</select>	
+	
+	<select id="delete">
+   <![CDATA[
+		DELETE FROM ou_board WHERE bid = #{bid}
+   ]]>
+	</select>	
+	
+	<update id="modify">
+   <![CDATA[
+   		UPDATE ou_board SET bname = #{bname}, btitle = #{btitle}, bcontent = #{bcontent} WHERE bid = #{bid}
+   ]]>
+	</update>	
+	
+	<select id="upHit">
+   <![CDATA[
+   		UPDATE ou_board SET bhit = bhit + 1 WHERE bid = #{bid}
+   ]]>
+	</select>		
+	
+	<select id="updateShape">
+   <![CDATA[
+   		UPDATE ou_board SET bstep = bstep + 1 WHERE bgroup =#{bgroup} AND bstep > #{bstep}
+   ]]>
+	</select>
+	
+	<select id="insertReply">
+   <![CDATA[
+		INSERT INTO ou_board(bid, bname, btitle, bcontent, bhit, bgroup, bstep, bindent)
+		VALUES (ou_board_SEQ.NEXTVAL, #{bname}, #{btitle}, #{bcontent}, 0, #{bgroup}, #{bstep} + 1, #{bindent} + 1)
+   ]]>
+	</select>		
+
+	
+</mapper>
